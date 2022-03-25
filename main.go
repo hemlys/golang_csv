@@ -36,7 +36,7 @@ var (
 func main() {
 	filePaths = getAbsPath() //檔案路徑
 	checkNumber()
-	checkFilename()
+	checkFileName()
 
 	csvFile, err := os.Create(filePaths + fileName) //產生新的檔名
 	if err != nil {
@@ -50,7 +50,7 @@ func main() {
 	}
 
 	readFile := csv.NewReader(file)
-	readFile.Comma = ','          // 以何種字元作分隔，預設為`,`。所以這裡可拿掉這行
+	readFile.Comma = ','          // 以何種字元作分隔，預設為`,`
 	readFile.FieldsPerRecord = -1 //防止錯誤
 	for {
 		record, err := readFile.Read()
@@ -193,7 +193,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("請輸入要查詢的UserId: ")
+		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 
 		if uuid != "" {
@@ -213,7 +213,7 @@ func checkNumber() {
 	fmt.Println(name)
 }
 
-func checkFilename() {
+func checkFileName() {
 	if name == "1" {
 		fileName = "/LaunchTime_" + uuid + ".csv"
 	}
