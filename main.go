@@ -54,6 +54,11 @@ func main() {
 	readFile := csv.NewReader(file)
 	readFile.Comma = ','          // 以何種字元作分隔，預設為`,`
 	readFile.FieldsPerRecord = -1 //防止錯誤
+	csvFile.Seek(0, io.SeekEnd)
+	csvFile.WriteString("\xEF\xBB\xBF") // 寫入UTF-8 防止中文亂碼
+	writer := csv.NewWriter(csvFile)
+	writer.Comma = ','
+	writer.UseCRLF = true
 	for {
 		record, err := readFile.Read()
 		if err == io.EOF {
@@ -69,8 +74,11 @@ func main() {
 		var eventName = record[8]
 		var eventParameters = record[10]
 
-		csvFile.WriteString("\xEF\xBB\xBF") // 寫入UTF-8 防止中文亂碼
-		writer := csv.NewWriter(csvFile)
+		// csvFile.Seek(0, io.SeekEnd)
+		// csvFile.WriteString("\xEF\xBB\xBF") // 寫入UTF-8 防止中文亂碼
+		// writer := csv.NewWriter(csvFile)
+		// writer.Comma = ','
+		// writer.UseCRLF = true
 		StrContainers := strings.Contains(eventName, "Flurry") //排除系統預設事件,空的 Parameter
 		if StrContainers || len(eventParameters) < 5 {
 			continue
@@ -156,24 +164,43 @@ func main() {
 		}
 		//寫入 csv 標頭
 		if count == 0 {
-			txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
-			writer.WriteAll(txt)
-			writer.Flush()
+			if name == "3" {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
+				writer.WriteAll(txt)
+				// writer.Flush()
+			} else {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
+				writer.WriteAll(txt)
+				// writer.Flush()
+			}
+
 		}
 		//寫入指定 userid 資料
-		if uuid == UserID && len(deviceIdentifiers) != 0 {
+		if uuid == UserID && len(Time) != 0 {
 			Filecount = Filecount + 1
-			txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
-			writer.WriteAll(txt)
-			writer.Flush()
+			// fmt.Println("Filecount :", Filecount)
+			if name == "3" {
+				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
+				writer.WriteAll(txt)
+				// writer.Flush()
+			} else {
+				// fmt.Println("Time :", Time)
+				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
+				writer.WriteAll(txt)
+				// writer.Flush()
+			}
 		} else if uuid == "root" {
+			// fmt.Println("Time2 :", len(Time))
 			Filecount = Filecount + 1
 			txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
 			writer.WriteAll(txt)
-			writer.Flush()
+			// writer.Flush()
 		}
 		count = count + 1
 	}
+	writer.Flush()
 	file.Close()
 
 	if Filecount == 0 {
@@ -222,7 +249,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("版本:1.0.0\n")
+		fmt.Printf("版本:1.0.1\n")
 		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 
