@@ -14,25 +14,30 @@ import (
 )
 
 var (
-	filePaths     string = ""
-	uuid          string = ""
-	name          string
-	count         int    = 0
-	Filecount     int    = 0
-	fileName      string = "/AllData.csv"
-	VersionInfo          = ""
-	SocketError          = ""
-	Time                 = ""
-	UserID               = ""
-	DeviceID             = ""
-	CurrentLine          = ""
-	ApiSpeed             = ""
-	ContractSpeed        = ""
-	LaunchTime           = ""
-	NetError             = ""
-	URL                  = ""
-	AppStatus            = ""
-	Name                 = ""
+	filePaths       string = ""
+	uuid            string = ""
+	name            string
+	count           int    = 0
+	Filecount       int    = 0
+	fileName        string = "/AllData.csv"
+	VersionInfo            = ""
+	SocketError            = ""
+	Time                   = ""
+	UserID                 = ""
+	DeviceID               = ""
+	CurrentLine            = ""
+	ApiSpeed               = ""
+	ContractSpeed          = ""
+	LaunchTime             = ""
+	NetError               = ""
+	URL                    = ""
+	AppStatus              = ""
+	Name                   = ""
+	OnClick                = ""
+	EventID                = ""
+	ApiCallTime            = ""
+	ApiResponseTime        = ""
+	error300Report         = ""
 )
 
 func main() {
@@ -127,7 +132,7 @@ func main() {
 			// fmt.Println(err)
 		}
 		// fmt.Println("Time:", responseDatas.Time)
-		if responseDatas.Time == "" {
+		if count == 0 {
 			VersionInfo = "VersionInfo"
 			SocketError = "SocketError"
 			Time = "Time"
@@ -141,6 +146,12 @@ func main() {
 			URL = "URL"
 			AppStatus = "AppStatus"
 			Name = "Name"
+			OnClick = "OnClick"
+			EventID = "eventID"
+			ApiCallTime = "ApiCallTime"
+			ApiResponseTime = "ApiResponseTime"
+			error300Report = "error300Report"
+
 		} else {
 			VersionInfo = responseDatas.VersionInfo
 			SocketError = responseDatas.SocketError
@@ -155,6 +166,11 @@ func main() {
 			URL = responseDatas.URL
 			AppStatus = responseDatas.AppStatus
 			Name = responseDatas.Name
+			OnClick = responseDatas.OnClick
+			EventID = responseDatas.EventID
+			ApiCallTime = responseDatas.ApiCallTime
+			ApiResponseTime = responseDatas.ResponseTime
+			error300Report = responseDatas.Error300Report
 		}
 		// fmt.Println("deviceIdentifiers :", deviceIdentifiers)
 		var responseDatas2 model.DeviceIdentifiers
@@ -163,40 +179,134 @@ func main() {
 			// fmt.Println(err3)
 		}
 		//寫入 csv 標頭
+		// fmt.Println("count :", count)
 		if count == 0 {
 			if name == "3" {
 				// fmt.Println("count :", count)
-				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, URL, Name}}
+				writer.WriteAll(txt)
+
+				// writer.Flush()
+			} else if name == "1" {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, LaunchTime, URL, Name}}
+				writer.WriteAll(txt)
+
+				// writer.Flush()
+			} else if name == "2" {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, NetError, URL, Name}}
+				writer.WriteAll(txt)
+
+				// writer.Flush()
+			} else if name == "7" {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime}}
+				writer.WriteAll(txt)
+
+				// writer.Flush()
+			} else if name == "8" {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
 				writer.WriteAll(txt)
 				// writer.Flush()
+
+			} else if name == "9" {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report}}
+				writer.WriteAll(txt)
+				// writer.Flush()
+
 			} else {
 				// fmt.Println("count :", count)
-				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, NetError, URL, Name, EventID, ApiCallTime, ApiResponseTime, error300Report, eventParameters}}
 				writer.WriteAll(txt)
 				// writer.Flush()
-			}
 
+			}
+			count = count + 1
 		}
 		//寫入指定 userid 資料
 		if uuid == UserID && len(Time) != 0 {
 			Filecount = Filecount + 1
 			// fmt.Println("Filecount :", Filecount)
+			// fmt.Println("name :", name)
 			if name == "3" {
-				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
-				writer.WriteAll(txt)
-				// writer.Flush()
+				if eventName == "SocketError" {
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, URL, Name}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "1" {
+				if eventName == "LaunchTime" {
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, LaunchTime, URL, Name}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "2" {
+				if eventName == "NetError" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, NetError, URL, Name}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "7" {
+				if eventName == "ApiCallTime" {
+					fmt.Println("ApiResponseTime :", ApiCallTime)
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "8" {
+				if eventName == "ApiResponseTime" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "9" {
+				if eventName == "error300Report" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report}}
+					writer.WriteAll(txt)
+				}
 			} else {
 				// fmt.Println("Time :", Time)
-				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
+				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, NetError, URL, Name, EventID, ApiCallTime, ApiResponseTime, error300Report, eventParameters}}
 				writer.WriteAll(txt)
 				// writer.Flush()
 			}
-		} else if uuid == "root" {
-			// fmt.Println("Time2 :", len(Time))
+		} else if uuid == "root" && len(Time) != 0 {
+			// fmt.Println("name :", name)
 			Filecount = Filecount + 1
-			txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, eventParameters, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name}}
-			writer.WriteAll(txt)
-			// writer.Flush()
+			// txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, LaunchTime, NetError, URL, Name, EventID, eventParameters, ApiCallTime, ApiResponseTime, error300Report}}
+			// writer.WriteAll(txt)
+			if name == "3" {
+				if eventName == "SocketError" {
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, URL, Name}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "1" {
+				if eventName == "LaunchTime" {
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, LaunchTime, URL, Name}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "2" {
+				if eventName == "NetError" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, NetError, URL, Name}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "7" {
+				if eventName == "ApiCallTime" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "8" {
+				if eventName == "ApiResponseTime" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
+					writer.WriteAll(txt)
+				}
+			} else if name == "9" {
+				if eventName == "error300Report" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report}}
+					writer.WriteAll(txt)
+				}
+			} else {
+				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, NetError, URL, Name, EventID, ApiCallTime, ApiResponseTime, error300Report, eventParameters}}
+				writer.WriteAll(txt)
+			}
 		}
 		count = count + 1
 	}
@@ -249,7 +359,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("版本:1.0.1\n")
+		fmt.Printf("版本:1.0.4\n")
 		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 
@@ -259,7 +369,7 @@ func checkNumber() {
 	}
 	fmt.Println("查詢的 Userid:", uuid)
 	for {
-		fmt.Printf("1.LaunchTime\n2.NetError\n3.SocketError\n4.AndroidSpeed\n5.AppStatus\n6.onClick\n")
+		fmt.Printf("1.LaunchTime\n2.NetError\n3.SocketError\n4.AndroidSpeed\n5.AppStatus\n6.onClick\n7.ApiCallTime\n8.ApiResponseTime\n9.error300Report\n")
 		fmt.Printf("請輸入要輸出的類型號碼: ")
 		fmt.Scanln(&name)
 
@@ -289,4 +399,17 @@ func checkFileName() {
 	if name == "6" {
 		fileName = "/onClick_" + uuid + ".csv"
 	}
+	if name == "7" {
+		fileName = "/ApiCallTime_" + uuid + ".csv"
+	}
+	if name == "8" {
+		fileName = "/ApiResponseTime_" + uuid + ".csv"
+	}
+	if name == "9" {
+		fileName = "/error300Report_" + uuid + ".csv"
+	}
+
+	// ApiCallTime = "ApiCallTime"
+	// ApiResponseTime = "ApiResponseTime"
+	// error300Report = "error300Report"
 }
