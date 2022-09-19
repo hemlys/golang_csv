@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"demo/model"
@@ -20,6 +21,7 @@ var (
 	count           int    = 0
 	Filecount       int    = 0
 	fileName        string = "/AllData.csv"
+	fileName2       string = "/AllData.csv"
 	VersionInfo            = ""
 	SocketError            = ""
 	Time                   = ""
@@ -45,7 +47,8 @@ func main() {
 	checkNumber()
 	checkFileName()
 
-	csvFile, err := os.Create(filePaths + fileName) //產生新的檔名
+	csvFile, err := os.Create(filePaths + fileName)   //產生新的檔名
+	csvFile2, err := os.Create(filePaths + fileName2) //產生新的檔名
 	if err != nil {
 		panic(err)
 	}
@@ -55,6 +58,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error when opening file: %s", err)
 	}
+	//weexraw
 
 	readFile := csv.NewReader(file)
 	readFile.Comma = ','          // 以何種字元作分隔，預設為`,`
@@ -64,6 +68,20 @@ func main() {
 	writer := csv.NewWriter(csvFile)
 	writer.Comma = ','
 	writer.UseCRLF = true
+
+	csvFile2.Seek(0, io.SeekEnd)
+	csvFile2.WriteString("\xEF\xBB\xBF") // 寫入UTF-8 防止中文亂碼
+	writer2 := csv.NewWriter(csvFile2)
+	writer2.Comma = ','
+	writer2.UseCRLF = true
+
+	// s := []string{"hello", "world", "hello", "golang", "hello", "ruby", "php", "java"}
+	// urlList := []string{}
+
+	//儲存key
+	resultObj := map[string]interface{}{}
+
+	// fmt.Println(removeDuplicateElement(s))
 	for {
 		record, err := readFile.Read()
 		if err == io.EOF {
@@ -210,6 +228,12 @@ func main() {
 				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
 				writer.WriteAll(txt)
 				// writer.Flush()
+				// 						maxcount := tempObj["max"].(int)
+				// 						mincount := tempObj["min"].(int)
+				// 						numcount := tempObj["all"].(int) + marks
+				// 						allcount := tempObj["count"].(int)
+				txt2 := [][]string{{"apiurl", "maxTime", "miniTime", "all", "count", "averageTime"}}
+				writer2.WriteAll(txt2)
 
 			} else if name == "9" {
 				// fmt.Println("count :", count)
@@ -219,7 +243,7 @@ func main() {
 
 			} else {
 				// fmt.Println("count :", count)
-				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, NetError, URL, Name, EventID, ApiCallTime, ApiResponseTime, error300Report, eventParameters}}
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, NetError, URL, Name, EventID, ApiCallTime, ApiResponseTime, error300Report}}
 				writer.WriteAll(txt)
 				// writer.Flush()
 
@@ -233,33 +257,35 @@ func main() {
 			// fmt.Println("name :", name)
 			if name == "3" {
 				if eventName == "SocketError" {
-					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, URL, Name}}
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, URL, Name, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "1" {
 				if eventName == "LaunchTime" {
-					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, LaunchTime, URL, Name}}
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, LaunchTime, URL, Name, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "2" {
 				if eventName == "NetError" {
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, NetError, URL, Name}}
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, NetError, URL, Name, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "7" {
 				if eventName == "ApiCallTime" {
 					fmt.Println("ApiResponseTime :", ApiCallTime)
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime}}
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "8" {
+				// str1 := strings.Split(VersionInfo, ".")
+				// fmt.Println("ver :", str1[len(str1)-1])
 				if eventName == "ApiResponseTime" {
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "9" {
 				if eventName == "error300Report" {
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report}}
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else {
@@ -275,34 +301,129 @@ func main() {
 			// writer.WriteAll(txt)
 			if name == "3" {
 				if eventName == "SocketError" {
-					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, URL, Name}}
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, SocketError, UserID, DeviceID, URL, Name, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "1" {
 				if eventName == "LaunchTime" {
-					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, LaunchTime, URL, Name}}
+					txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, LaunchTime, URL, Name, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "2" {
 				if eventName == "NetError" {
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, NetError, URL, Name}}
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, NetError, URL, Name, eventParameters}}
 					writer.WriteAll(txt)
 				}
 			} else if name == "7" {
 				if eventName == "ApiCallTime" {
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime}}
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime, eventParameters}}
 					writer.WriteAll(txt)
 				}
+				// txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime, eventParameters}}
+				// writer.WriteAll(txt)
 			} else if name == "8" {
-				if eventName == "ApiResponseTime" {
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
-					writer.WriteAll(txt)
+				str1 := strings.Split(VersionInfo, ".")
+				strall := str1[len(str1)-1]
+				marks2, err := strconv.Atoi(strall)
+
+				if err != nil {
+					fmt.Println("Error during conversion= ", err)
+					// return
 				}
+				// fmt.Println("ver :", str1[len(str1)-1])
+				if marks2 >= 17 {
+					if eventName == "ApiResponseTime" {
+						txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
+						writer.WriteAll(txt)
+
+						var responseDatas3 model.ApiCallUrl
+						err4 := json.Unmarshal([]byte(eventParameters), &responseDatas3)
+						if err4 != nil {
+							// fmt.Println(err3)
+						}
+
+						// marksStr := "320"
+						marks, err := strconv.Atoi(responseDatas3.SubtractTime)
+
+						if err != nil {
+							fmt.Println("Error during conversion")
+							// return
+						}
+
+						// fmt.Println(marks)
+
+						var oneObj = map[string]interface{}{
+							"ApiCallUrl": responseDatas3.ApiCallUrl,
+							"all":        marks,
+							"max":        marks,
+							"min":        marks,
+							"times":      0,
+							"count":      1,
+						}
+
+						if resultObj[responseDatas3.ApiCallUrl] == nil {
+							resultObj[responseDatas3.ApiCallUrl] = oneObj
+						} else {
+							tempObj := resultObj[responseDatas3.ApiCallUrl].(map[string]interface{})
+							maxcount := tempObj["max"].(int)
+							mincount := tempObj["min"].(int)
+							numcount := tempObj["all"].(int) + marks
+							allcount := tempObj["count"].(int)
+							allcount = allcount + 1
+							if marks > maxcount {
+								maxcount = marks
+							}
+							if marks < mincount {
+								mincount = marks
+							}
+
+							var oneObj2 = map[string]interface{}{
+								"ApiCallUrl": responseDatas3.ApiCallUrl,
+								"all":        numcount,
+								"max":        maxcount,
+								"min":        mincount,
+								"times":      0,
+								"count":      allcount,
+							}
+							resultObj[responseDatas3.ApiCallUrl] = oneObj2
+						}
+
+						// var result map[string]interface{}
+						// json_body := []byte(`{"a":92, "b":{"c": "123", "d": 1235}}`)
+						// json.Unmarshal(json_body, &result)
+						// fmt.Println(result)
+						// fmt.Println("============")
+						// bResult := result["b"].(map[string]interface{})
+						// fmt.Println("c: " + bResult["c"].(string))
+
+						// tempObj := resultObj[responseDatas3.ApiCallUrl]
+						// tempObj[max]
+						// tempObj["max"].int = tempObj["max"].int + responseDatas3.SubtractTime
+
+						// resultObj[key]["max"] = resultObj[key]["max"] + MAX數字
+
+						// urlList = append(urlList, responseDatas3.ApiCallUrl)
+						// num, err := strconv.Atoi(responseDatas3.SubtractTime)
+						// if err != nil {
+						// 	// fmt.Println(err3)
+						// }
+						// fmt.Println("count :", count)
+
+						// txt2 := [][]string{{responseDatas3.ApiCallUrl, responseDatas3.SubtractTime, "0", "0"}}
+						// writer2.WriteAll(txt2)
+					}
+				}
+				// fmt.Println("count :", str1[str1.l])
+
+				// txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
+				// writer.WriteAll(txt)
 			} else if name == "9" {
 				if eventName == "error300Report" {
-					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report}}
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report, eventParameters}}
 					writer.WriteAll(txt)
 				}
+				// txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report, eventParameters}}
+				// writer.WriteAll(txt)
 			} else {
 				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, NetError, URL, Name, EventID, ApiCallTime, ApiResponseTime, error300Report, eventParameters}}
 				writer.WriteAll(txt)
@@ -327,6 +448,30 @@ func main() {
 
 		}
 	}
+
+	for k := range resultObj {
+		testtxt := resultObj[k].(map[string]interface{})
+		maxtxt := strconv.FormatInt(int64(testtxt["max"].(int)), 10)
+		mintxt := strconv.FormatInt(int64(testtxt["min"].(int)), 10)
+		alltxt := strconv.FormatInt(int64(testtxt["all"].(int)), 10)
+		counttxts := strconv.FormatInt(int64(testtxt["count"].(int)), 10)
+
+		// var averagetxt2 = "0"
+		// if testtxt["count"].(int) != 0 {
+		// 	averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
+		// 	averagetxt2 = strconv.FormatInt(int64(averagetxt), 10)
+		// } else {
+		// 	averagetxt2 = alltxt
+		// }
+		averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
+		averagetxt2 := strconv.FormatInt(int64(averagetxt), 10)
+
+		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, alltxt, counttxts, averagetxt2}}
+		// fmt.Println("txt2 :", txt2)
+		writer2.WriteAll(txt2)
+	}
+	writer2.Flush()
+
 }
 
 func getWorkingDirPath() string { //開發模式路徑
@@ -359,7 +504,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("版本:1.0.4\n")
+		fmt.Printf("版本:1.0.6\n")
 		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 
@@ -404,6 +549,7 @@ func checkFileName() {
 	}
 	if name == "8" {
 		fileName = "/ApiResponseTime_" + uuid + ".csv"
+		fileName2 = "/weexrawlist" + ".csv"
 	}
 	if name == "9" {
 		fileName = "/error300Report_" + uuid + ".csv"
@@ -412,4 +558,16 @@ func checkFileName() {
 	// ApiCallTime = "ApiCallTime"
 	// ApiResponseTime = "ApiResponseTime"
 	// error300Report = "error300Report"
+}
+
+func removeDuplicateElement(addrs []string) []string {
+	result := make([]string, 0, len(addrs))
+	temp := map[string]struct{}{}
+	for _, item := range addrs {
+		if _, ok := temp[item]; !ok {
+			temp[item] = struct{}{}
+			result = append(result, item)
+		}
+	}
+	return result
 }
