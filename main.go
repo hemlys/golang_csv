@@ -330,8 +330,8 @@ func main() {
 					// return
 				}
 				// fmt.Println("ver :", str1[len(str1)-1])
-				if marks2 >= 28 { //android
-					// if marks2 >= 17 { //ios
+				// if marks2 >= 28 { //android
+				if marks2 >= 17 { //ios
 
 					if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
 						txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
@@ -344,8 +344,8 @@ func main() {
 						}
 						// fmt.Println("eventName=", eventName)
 						// marksStr := "320"
-						marks, err := strconv.Atoi(responseDatas3.SubtractTime) //Android
-						// marks, err := strconv.Atoi(responseDatas3.Res_subtract) //iOS
+						// marks, err := strconv.Atoi(responseDatas3.SubtractTime) //Android
+						marks, err := strconv.Atoi(responseDatas3.Res_subtract) //iOS
 
 						// fmt.Println("resgw= ", responseDatas3.Res_gw)
 						resgw, err9 := strconv.Atoi(responseDatas3.Res_gw) //Android & iOS
@@ -495,9 +495,19 @@ func main() {
 		// }
 		averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
 		averagetxt2 := strconv.FormatInt(int64(averagetxt), 10)
+		// strconv.ParseFloat(f, 64)
+		// fmt.Println("allgw :", testtxt["allgw"].(float64))
+		// fmt.Println("count:", testtxt["count"].(float64))
 
-		averagetxtgw := testtxt["allgw"].(int) / testtxt["count"].(int)
-		averagetxt2gw := strconv.FormatInt(int64(averagetxtgw), 10)
+		// y is a float64 type variable
+		var xx float64 = float64(testtxt["allgw"].(int))
+		var yy float64 = float64(testtxt["count"].(int))
+		// fmt.Println("allgw :", xx)
+		// fmt.Println("count:", yy)
+		averagetxtgw := xx / yy
+		// averagetxtgw := testtxt["allgw"].(int) / testtxt["count"].(int)
+		// averagetxt2gw := strconv.FormatInt(int64(averagetxtgw), 10)
+		averagetxt2gw := fmt.Sprintf("%.2f", averagetxtgw)
 		// txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime","gwAverageTime"}}
 
 		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, averagetxt2, maxtxtgw, mintxtgw, averagetxt2gw, counttxts}}
