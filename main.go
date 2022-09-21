@@ -227,12 +227,8 @@ func main() {
 				// fmt.Println("count :", count)
 				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
 				writer.WriteAll(txt)
-				// writer.Flush()
-				// 						maxcount := tempObj["max"].(int)
-				// 						mincount := tempObj["min"].(int)
-				// 						numcount := tempObj["all"].(int) + marks
-				// 						allcount := tempObj["count"].(int)
-				txt2 := [][]string{{"apiurl", "maxTime", "miniTime", "all", "count", "averageTime"}}
+
+				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count"}}
 				writer2.WriteAll(txt2)
 
 			} else if name == "9" {
@@ -323,16 +319,21 @@ func main() {
 				// writer.WriteAll(txt)
 			} else if name == "8" {
 				str1 := strings.Split(VersionInfo, ".")
+				// fmt.Println("ver= ", str1)
 				strall := str1[len(str1)-1]
-				marks2, err := strconv.Atoi(strall)
-
+				trimStr := strings.TrimSpace(strall)
+				// fmt.Println("trimStr=", trimStr)
+				marks2, err := strconv.Atoi(trimStr)
+				// fmt.Println("marks2=", marks2)
 				if err != nil {
-					fmt.Println("Error during conversion= ", err)
+					// fmt.Println("Error during conversion= ", err)
 					// return
 				}
 				// fmt.Println("ver :", str1[len(str1)-1])
-				if marks2 >= 17 {
-					if eventName == "ApiResponseTime" {
+				if marks2 >= 28 { //android
+					// if marks2 >= 17 { //ios
+
+					if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
 						txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
 						writer.WriteAll(txt)
 
@@ -341,12 +342,22 @@ func main() {
 						if err4 != nil {
 							// fmt.Println(err3)
 						}
-
+						// fmt.Println("eventName=", eventName)
 						// marksStr := "320"
-						marks, err := strconv.Atoi(responseDatas3.SubtractTime)
+						marks, err := strconv.Atoi(responseDatas3.SubtractTime) //Android
+						// marks, err := strconv.Atoi(responseDatas3.Res_subtract) //iOS
 
+						// fmt.Println("resgw= ", responseDatas3.Res_gw)
+						resgw, err9 := strconv.Atoi(responseDatas3.Res_gw) //Android & iOS
+
+						// fmt.Println("responseDatas3.ApiCallUrl= ", responseDatas3.ApiCallUrl)
+						// fmt.Println("marks=", marks)
 						if err != nil {
-							fmt.Println("Error during conversion")
+							// fmt.Println("Error during conversion")
+							// return
+						}
+						if err9 != nil {
+							// fmt.Println("Error during conversion")
 							// return
 						}
 
@@ -359,6 +370,9 @@ func main() {
 							"min":        marks,
 							"times":      0,
 							"count":      1,
+							"maxgw":      resgw,
+							"mingw":      resgw,
+							"allgw":      resgw,
 						}
 
 						if resultObj[responseDatas3.ApiCallUrl] == nil {
@@ -367,7 +381,10 @@ func main() {
 							tempObj := resultObj[responseDatas3.ApiCallUrl].(map[string]interface{})
 							maxcount := tempObj["max"].(int)
 							mincount := tempObj["min"].(int)
+							maxcountgw := tempObj["maxgw"].(int)
+							mincountgw := tempObj["mingw"].(int)
 							numcount := tempObj["all"].(int) + marks
+							numcountgw := tempObj["allgw"].(int) + resgw
 							allcount := tempObj["count"].(int)
 							allcount = allcount + 1
 							if marks > maxcount {
@@ -377,6 +394,13 @@ func main() {
 								mincount = marks
 							}
 
+							if resgw > maxcountgw {
+								maxcountgw = resgw
+							}
+							if resgw < mincountgw {
+								mincountgw = resgw
+							}
+
 							var oneObj2 = map[string]interface{}{
 								"ApiCallUrl": responseDatas3.ApiCallUrl,
 								"all":        numcount,
@@ -384,6 +408,9 @@ func main() {
 								"min":        mincount,
 								"times":      0,
 								"count":      allcount,
+								"maxgw":      maxcountgw,
+								"mingw":      mincountgw,
+								"allgw":      numcountgw,
 							}
 							resultObj[responseDatas3.ApiCallUrl] = oneObj2
 						}
@@ -453,8 +480,11 @@ func main() {
 		testtxt := resultObj[k].(map[string]interface{})
 		maxtxt := strconv.FormatInt(int64(testtxt["max"].(int)), 10)
 		mintxt := strconv.FormatInt(int64(testtxt["min"].(int)), 10)
-		alltxt := strconv.FormatInt(int64(testtxt["all"].(int)), 10)
+		maxtxtgw := strconv.FormatInt(int64(testtxt["maxgw"].(int)), 10)
+		mintxtgw := strconv.FormatInt(int64(testtxt["mingw"].(int)), 10)
+		// alltxt := strconv.FormatInt(int64(testtxt["all"].(int)), 10)
 		counttxts := strconv.FormatInt(int64(testtxt["count"].(int)), 10)
+		// alltxt := strconv.FormatInt(int64(testtxt["allgw"].(int)), 10)
 
 		// var averagetxt2 = "0"
 		// if testtxt["count"].(int) != 0 {
@@ -466,7 +496,11 @@ func main() {
 		averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
 		averagetxt2 := strconv.FormatInt(int64(averagetxt), 10)
 
-		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, alltxt, counttxts, averagetxt2}}
+		averagetxtgw := testtxt["allgw"].(int) / testtxt["count"].(int)
+		averagetxt2gw := strconv.FormatInt(int64(averagetxtgw), 10)
+		// txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime","gwAverageTime"}}
+
+		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, averagetxt2, maxtxtgw, mintxtgw, averagetxt2gw, counttxts}}
 		// fmt.Println("txt2 :", txt2)
 		writer2.WriteAll(txt2)
 	}
@@ -504,7 +538,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("版本:1.0.6\n")
+		fmt.Printf("版本:1.0.7\n")
 		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 

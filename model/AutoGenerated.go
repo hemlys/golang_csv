@@ -32,4 +32,6 @@ type DeviceIdentifiers struct {
 type ApiCallUrl struct {
 	ApiCallUrl   string `json:"ApiCallUrl"`
 	SubtractTime string `json:"subtractTime"`
+	Res_subtract string `json:"res_subtract"`
+	Res_gw       string `json:"res_gw"`
 }
