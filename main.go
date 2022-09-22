@@ -318,12 +318,10 @@ func main() {
 				// txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiCallTime, eventParameters}}
 				// writer.WriteAll(txt)
 			} else if name == "8" {
-				str1 := strings.Split(VersionInfo, ".")
-				// fmt.Println("ver= ", str1)
-				strall := str1[len(str1)-1]
-				trimStr := strings.TrimSpace(strall)
-				// fmt.Println("trimStr=", trimStr)
-				marks2, err := strconv.Atoi(trimStr)
+				// str1 := strings.Split(VersionInfo, ".")
+				// strall := str1[len(str1)-1]
+				// trimStr := strings.TrimSpace(strall)
+				// marks2, err := strconv.Atoi(trimStr)
 				// fmt.Println("marks2=", marks2)
 				if err != nil {
 					// fmt.Println("Error during conversion= ", err)
@@ -331,38 +329,41 @@ func main() {
 				}
 				// fmt.Println("ver :", str1[len(str1)-1])
 				// if marks2 >= 28 { //android
-				if marks2 >= 17 { //ios
+				// if marks2 >= 17 { //ios
 
-					if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
-						txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
-						writer.WriteAll(txt)
+				if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
+					writer.WriteAll(txt)
 
-						var responseDatas3 model.ApiCallUrl
-						err4 := json.Unmarshal([]byte(eventParameters), &responseDatas3)
-						if err4 != nil {
-							// fmt.Println(err3)
-						}
-						// fmt.Println("eventName=", eventName)
-						// marksStr := "320"
-						// marks, err := strconv.Atoi(responseDatas3.SubtractTime) //Android
-						marks, err := strconv.Atoi(responseDatas3.Res_subtract) //iOS
+					var responseDatas3 model.ApiCallUrl
+					err4 := json.Unmarshal([]byte(eventParameters), &responseDatas3)
+					if err4 != nil {
+						// fmt.Println(err3)
+					}
+					// fmt.Println("eventName=", eventName)
+					// marksStr := "320"
+					// marks, err := strconv.Atoi(responseDatas3.SubtractTime) //Android
+					marks, err := strconv.Atoi(responseDatas3.Res_subtract) //iOS
 
-						// fmt.Println("resgw= ", responseDatas3.Res_gw)
-						resgw, err9 := strconv.Atoi(responseDatas3.Res_gw) //Android & iOS
+					// fmt.Println("resgw= ", responseDatas3.Res_gw)
+					resgw, err9 := strconv.Atoi(responseDatas3.Res_gw) //Android & iOS
 
-						// fmt.Println("responseDatas3.ApiCallUrl= ", responseDatas3.ApiCallUrl)
-						// fmt.Println("marks=", marks)
-						if err != nil {
-							// fmt.Println("Error during conversion")
-							// return
-						}
-						if err9 != nil {
-							// fmt.Println("Error during conversion")
-							// return
-						}
+					// fmt.Println("responseDatas3.ApiCallUrl= ", responseDatas3.ApiCallUrl)
+					// fmt.Println("marks=", marks)
+					if err != nil {
+						// fmt.Println("Error during conversion")
+						// return
+					}
+					if err9 != nil {
+						// fmt.Println("Error during conversion")
+						// return
+					}
 
-						// fmt.Println(marks)
-
+					// fmt.Println(marks)
+					if marks == 0 {
+						// fmt.Println("marks :", marks)
+						// fmt.Println("ApiCallUrl :", responseDatas3.ApiCallUrl)
+					} else {
 						var oneObj = map[string]interface{}{
 							"ApiCallUrl": responseDatas3.ApiCallUrl,
 							"all":        marks,
@@ -387,6 +388,11 @@ func main() {
 							numcountgw := tempObj["allgw"].(int) + resgw
 							allcount := tempObj["count"].(int)
 							allcount = allcount + 1
+							// if marks == 0 {
+							// 	fmt.Println("marks :", marks)
+							// 	fmt.Println("ApiCallUrl :", responseDatas3.ApiCallUrl)
+							// }
+
 							if marks > maxcount {
 								maxcount = marks
 							}
@@ -414,32 +420,10 @@ func main() {
 							}
 							resultObj[responseDatas3.ApiCallUrl] = oneObj2
 						}
-
-						// var result map[string]interface{}
-						// json_body := []byte(`{"a":92, "b":{"c": "123", "d": 1235}}`)
-						// json.Unmarshal(json_body, &result)
-						// fmt.Println(result)
-						// fmt.Println("============")
-						// bResult := result["b"].(map[string]interface{})
-						// fmt.Println("c: " + bResult["c"].(string))
-
-						// tempObj := resultObj[responseDatas3.ApiCallUrl]
-						// tempObj[max]
-						// tempObj["max"].int = tempObj["max"].int + responseDatas3.SubtractTime
-
-						// resultObj[key]["max"] = resultObj[key]["max"] + MAX數字
-
-						// urlList = append(urlList, responseDatas3.ApiCallUrl)
-						// num, err := strconv.Atoi(responseDatas3.SubtractTime)
-						// if err != nil {
-						// 	// fmt.Println(err3)
-						// }
-						// fmt.Println("count :", count)
-
-						// txt2 := [][]string{{responseDatas3.ApiCallUrl, responseDatas3.SubtractTime, "0", "0"}}
-						// writer2.WriteAll(txt2)
 					}
+
 				}
+				// }
 				// fmt.Println("count :", str1[str1.l])
 
 				// txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
@@ -482,34 +466,16 @@ func main() {
 		mintxt := strconv.FormatInt(int64(testtxt["min"].(int)), 10)
 		maxtxtgw := strconv.FormatInt(int64(testtxt["maxgw"].(int)), 10)
 		mintxtgw := strconv.FormatInt(int64(testtxt["mingw"].(int)), 10)
-		// alltxt := strconv.FormatInt(int64(testtxt["all"].(int)), 10)
 		counttxts := strconv.FormatInt(int64(testtxt["count"].(int)), 10)
-		// alltxt := strconv.FormatInt(int64(testtxt["allgw"].(int)), 10)
-
-		// var averagetxt2 = "0"
-		// if testtxt["count"].(int) != 0 {
-		// 	averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
-		// 	averagetxt2 = strconv.FormatInt(int64(averagetxt), 10)
-		// } else {
-		// 	averagetxt2 = alltxt
-		// }
-		averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
-		averagetxt2 := strconv.FormatInt(int64(averagetxt), 10)
-		// strconv.ParseFloat(f, 64)
-		// fmt.Println("allgw :", testtxt["allgw"].(float64))
-		// fmt.Println("count:", testtxt["count"].(float64))
-
-		// y is a float64 type variable
+		// averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
+		var xxapi float64 = float64(testtxt["all"].(int))
 		var xx float64 = float64(testtxt["allgw"].(int))
 		var yy float64 = float64(testtxt["count"].(int))
-		// fmt.Println("allgw :", xx)
-		// fmt.Println("count:", yy)
+		averagetxt := xxapi / yy
+		// averagetxt2 := strconv.FormatInt(int64(averagetxt), 10)
+		averagetxt2 := fmt.Sprintf("%.2f", averagetxt)
 		averagetxtgw := xx / yy
-		// averagetxtgw := testtxt["allgw"].(int) / testtxt["count"].(int)
-		// averagetxt2gw := strconv.FormatInt(int64(averagetxtgw), 10)
 		averagetxt2gw := fmt.Sprintf("%.2f", averagetxtgw)
-		// txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime","gwAverageTime"}}
-
 		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, averagetxt2, maxtxtgw, mintxtgw, averagetxt2gw, counttxts}}
 		// fmt.Println("txt2 :", txt2)
 		writer2.WriteAll(txt2)
@@ -548,7 +514,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("版本:1.0.7\n")
+		fmt.Printf("版本:1.0.8\n")
 		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 
