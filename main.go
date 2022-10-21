@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -76,11 +77,11 @@ func main() {
 	writer2.UseCRLF = true
 
 	// s := []string{"hello", "world", "hello", "golang", "hello", "ruby", "php", "java"}
-	// urlList := []string{}
+	// countList := []int{}
 
 	//儲存key
 	resultObj := map[string]interface{}{}
-
+	// allList := map[string]interface{}{}
 	// fmt.Println(removeDuplicateElement(s))
 	for {
 		record, err := readFile.Read()
@@ -228,7 +229,7 @@ func main() {
 				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
 				writer.WriteAll(txt)
 
-				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count"}}
+				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count", "90%", "95%", "99%"}}
 				writer2.WriteAll(txt2)
 
 			} else if name == "9" {
@@ -236,6 +237,14 @@ func main() {
 				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report}}
 				writer.WriteAll(txt)
 				// writer.Flush()
+
+			} else if name == "10" {
+				// fmt.Println("count :", count)
+				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
+				writer.WriteAll(txt)
+
+				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count", "90%", "95%", "99%"}}
+				writer2.WriteAll(txt2)
 
 			} else {
 				// fmt.Println("count :", count)
@@ -275,7 +284,8 @@ func main() {
 			} else if name == "8" {
 				// str1 := strings.Split(VersionInfo, ".")
 				// fmt.Println("ver :", str1[len(str1)-1])
-				if eventName == "ApiResponseTime" {
+				// if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
+				if eventName == "ServerResponseTime" {
 					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
 					writer.WriteAll(txt)
 				}
@@ -330,8 +340,8 @@ func main() {
 				// fmt.Println("ver :", str1[len(str1)-1])
 				// if marks2 >= 28 { //android
 				// if marks2 >= 17 { //ios
-
-				if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
+				// if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
+				if eventName == "ServerResponseTime" {
 					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
 					writer.WriteAll(txt)
 
@@ -359,68 +369,94 @@ func main() {
 						// return
 					}
 
-					// fmt.Println(marks)
-					if marks == 0 {
-						// fmt.Println("marks :", marks)
-						// fmt.Println("ApiCallUrl :", responseDatas3.ApiCallUrl)
+					if strings.Contains(responseDatas3.ApiCallUrl, "health") || strings.Contains(responseDatas3.ApiCallUrl, "stopService") || strings.Contains(responseDatas3.ApiCallUrl, "legal/order/detail") || strings.Contains(responseDatas3.ApiCallUrl, "getChannelcodeFromVipcode") {
+
 					} else {
-						var oneObj = map[string]interface{}{
-							"ApiCallUrl": responseDatas3.ApiCallUrl,
-							"all":        marks,
-							"max":        marks,
-							"min":        marks,
-							"times":      0,
-							"count":      1,
-							"maxgw":      resgw,
-							"mingw":      resgw,
-							"allgw":      resgw,
-						}
-
-						if resultObj[responseDatas3.ApiCallUrl] == nil {
-							resultObj[responseDatas3.ApiCallUrl] = oneObj
+						if marks == 0 {
+							// fmt.Println("marks :", marks)
+							// fmt.Println("ApiCallUrl :", responseDatas3.ApiCallUrl)
 						} else {
-							tempObj := resultObj[responseDatas3.ApiCallUrl].(map[string]interface{})
-							maxcount := tempObj["max"].(int)
-							mincount := tempObj["min"].(int)
-							maxcountgw := tempObj["maxgw"].(int)
-							mincountgw := tempObj["mingw"].(int)
-							numcount := tempObj["all"].(int) + marks
-							numcountgw := tempObj["allgw"].(int) + resgw
-							allcount := tempObj["count"].(int)
-							allcount = allcount + 1
-							// if marks == 0 {
-							// 	fmt.Println("marks :", marks)
-							// 	fmt.Println("ApiCallUrl :", responseDatas3.ApiCallUrl)
-							// }
-
-							if marks > maxcount {
-								maxcount = marks
-							}
-							if marks < mincount {
-								mincount = marks
-							}
-
-							if resgw > maxcountgw {
-								maxcountgw = resgw
-							}
-							if resgw < mincountgw {
-								mincountgw = resgw
-							}
-
-							var oneObj2 = map[string]interface{}{
+							// countList := []int{}
+							// countList = append(countList, marks)
+							var oneObj = map[string]interface{}{
 								"ApiCallUrl": responseDatas3.ApiCallUrl,
-								"all":        numcount,
-								"max":        maxcount,
-								"min":        mincount,
-								"times":      0,
-								"count":      allcount,
-								"maxgw":      maxcountgw,
-								"mingw":      mincountgw,
-								"allgw":      numcountgw,
+								"all":        marks,
+								"max":        marks,
+								"min":        marks,
+								"times":      strconv.Itoa(marks),
+								"count":      1,
+								"maxgw":      resgw,
+								"mingw":      resgw,
+								"allgw":      resgw,
 							}
-							resultObj[responseDatas3.ApiCallUrl] = oneObj2
+
+							if resultObj[responseDatas3.ApiCallUrl] == nil {
+								resultObj[responseDatas3.ApiCallUrl] = oneObj
+							} else {
+								tempObj := resultObj[responseDatas3.ApiCallUrl].(map[string]interface{})
+								maxcount := tempObj["max"].(int)
+								mincount := tempObj["min"].(int)
+								maxcountgw := tempObj["maxgw"].(int)
+								mincountgw := tempObj["mingw"].(int)
+								numcount := tempObj["all"].(int) + marks
+								numcountgw := tempObj["allgw"].(int) + resgw
+								allcount := tempObj["count"].(int)
+								allcount = allcount + 1
+
+								testlist := tempObj["times"].(string)
+
+								//====================
+								urltext := strings.Split(responseDatas3.ApiCallUrl, "/")
+								// fmt.Println("text 0 :", urltext[0])
+								// fmt.Println("text 1 :", urltext[1])
+								fmt.Println("text 2 :", urltext[2])
+								// var straaa = []string{testlist, strconv.Itoa(marks)}
+								// testlist = strings.Join(straaa, ",")
+
+								// var buffer bytes.Buffer
+								// buffer.WriteString(testlist)
+								// buffer.WriteString(",")
+								// buffer.WriteString(strconv.Itoa(marks))
+								// testlist = buffer.String()
+
+								testlist = testlist + "," + strconv.Itoa(marks) //超慢
+
+								// fmt.Println("testlist size :", testlist)
+								fmt.Println("text size :", len(testlist))
+
+								if marks > maxcount {
+									maxcount = marks
+								}
+								if marks < mincount && marks >= 0 {
+									mincount = marks
+								}
+
+								if resgw > maxcountgw {
+									maxcountgw = resgw
+								}
+								if resgw < mincountgw && resgw >= 0 {
+									mincountgw = resgw
+								}
+
+								var oneObj2 = map[string]interface{}{
+									"ApiCallUrl": responseDatas3.ApiCallUrl,
+									"all":        numcount,
+									"max":        maxcount,
+									"min":        mincount,
+									"times":      testlist,
+									"count":      allcount,
+									"maxgw":      maxcountgw,
+									"mingw":      mincountgw,
+									"allgw":      numcountgw,
+								}
+
+								resultObj[responseDatas3.ApiCallUrl] = oneObj2
+							}
 						}
+
 					}
+
+					// fmt.Println(marks)
 
 				}
 				// }
@@ -434,6 +470,144 @@ func main() {
 					writer.WriteAll(txt)
 				}
 				// txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, error300Report, eventParameters}}
+				// writer.WriteAll(txt)
+			} else if name == "10" {
+				// str1 := strings.Split(VersionInfo, ".")
+				// strall := str1[len(str1)-1]
+				// trimStr := strings.TrimSpace(strall)
+				// marks2, err := strconv.Atoi(trimStr)
+				// fmt.Println("marks2=", marks2)
+				if err != nil {
+					// fmt.Println("Error during conversion= ", err)
+					// return
+				}
+				// fmt.Println("ver :", str1[len(str1)-1])
+				// if marks2 >= 28 { //android
+				// if marks2 >= 17 { //ios
+				// if eventName == "ApiResponseTime" || eventName == "ServerResponseTime" {
+				if eventName == "ServerResponseTime" {
+					txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
+					writer.WriteAll(txt)
+
+					var responseDatas3 model.ApiCallUrl
+					err4 := json.Unmarshal([]byte(eventParameters), &responseDatas3)
+					if err4 != nil {
+						// fmt.Println(err3)
+					}
+					// fmt.Println("eventName=", eventName)
+					// marksStr := "320"
+					// marks, err := strconv.Atoi(responseDatas3.SubtractTime) //Android
+					marks, err := strconv.Atoi(responseDatas3.Res_subtract) //iOS
+
+					// fmt.Println("resgw= ", responseDatas3.Res_gw)
+					resgw, err9 := strconv.Atoi(responseDatas3.Res_gw) //Android & iOS
+
+					// fmt.Println("responseDatas3.ApiCallUrl= ", responseDatas3.ApiCallUrl)
+					// fmt.Println("marks=", marks)
+					if err != nil {
+						// fmt.Println("Error during conversion")
+						// return
+					}
+					if err9 != nil {
+						// fmt.Println("Error during conversion")
+						// return
+					}
+
+					if strings.Contains(responseDatas3.ApiCallUrl, "health") || strings.Contains(responseDatas3.ApiCallUrl, "stopService") || strings.Contains(responseDatas3.ApiCallUrl, "legal/order/detail") || strings.Contains(responseDatas3.ApiCallUrl, "getChannelcodeFromVipcode") {
+
+					} else {
+						if marks == 0 {
+							// fmt.Println("marks :", marks)
+							// fmt.Println("ApiCallUrl :", responseDatas3.ApiCallUrl)
+						} else {
+							// countList := []int{}
+							// countList = append(countList, marks)
+							var urltext = strings.Split(responseDatas3.ApiCallUrl, "/")
+							var oneObj = map[string]interface{}{
+								"ApiCallUrl": urltext[2],
+								"all":        marks,
+								"max":        marks,
+								"min":        marks,
+								"times":      strconv.Itoa(marks),
+								"count":      1,
+								"maxgw":      resgw,
+								"mingw":      resgw,
+								"allgw":      resgw,
+							}
+
+							if resultObj[urltext[2]] == nil {
+								resultObj[urltext[2]] = oneObj
+							} else {
+								tempObj := resultObj[urltext[2]].(map[string]interface{})
+								maxcount := tempObj["max"].(int)
+								mincount := tempObj["min"].(int)
+								maxcountgw := tempObj["maxgw"].(int)
+								mincountgw := tempObj["mingw"].(int)
+								numcount := tempObj["all"].(int) + marks
+								numcountgw := tempObj["allgw"].(int) + resgw
+								allcount := tempObj["count"].(int)
+								allcount = allcount + 1
+
+								testlist := tempObj["times"].(string)
+
+								//====================
+								// urltext := strings.Split(responseDatas3.ApiCallUrl, "/")
+								// fmt.Println("text 0 :", urltext[0])
+								// fmt.Println("text 1 :", urltext[1])
+								// fmt.Println("text 2 :", urltext[2])
+								// var straaa = []string{testlist, strconv.Itoa(marks)}
+								// testlist = strings.Join(straaa, ",")
+
+								// var buffer bytes.Buffer
+								// buffer.WriteString(testlist)
+								// buffer.WriteString(",")
+								// buffer.WriteString(strconv.Itoa(marks))
+								// testlist = buffer.String()
+
+								testlist = testlist + "," + strconv.Itoa(marks) //超慢
+
+								// fmt.Println("testlist size :", testlist)
+								fmt.Println("text size :", len(testlist))
+
+								if marks > maxcount {
+									maxcount = marks
+								}
+								if marks < mincount && marks >= 0 {
+									mincount = marks
+								}
+
+								if resgw > maxcountgw {
+									maxcountgw = resgw
+								}
+								if resgw < mincountgw && resgw >= 0 {
+									mincountgw = resgw
+								}
+
+								var oneObj2 = map[string]interface{}{
+									"ApiCallUrl": urltext[2],
+									"all":        numcount,
+									"max":        maxcount,
+									"min":        mincount,
+									"times":      testlist,
+									"count":      allcount,
+									"maxgw":      maxcountgw,
+									"mingw":      mincountgw,
+									"allgw":      numcountgw,
+								}
+
+								resultObj[urltext[2]] = oneObj2
+							}
+						}
+
+					}
+
+					// fmt.Println(marks)
+
+				}
+				// }
+				// fmt.Println("count :", str1[str1.l])
+
+				// txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime, eventParameters}}
 				// writer.WriteAll(txt)
 			} else {
 				txt := [][]string{{Time, responseDatas2.Idfv, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, CurrentLine, ApiSpeed, ContractSpeed, NetError, URL, Name, EventID, ApiCallTime, ApiResponseTime, error300Report, eventParameters}}
@@ -460,6 +634,7 @@ func main() {
 		}
 	}
 
+	// fmt.Println("resultObj size :", len(resultObj))
 	for k := range resultObj {
 		testtxt := resultObj[k].(map[string]interface{})
 		maxtxt := strconv.FormatInt(int64(testtxt["max"].(int)), 10)
@@ -468,6 +643,37 @@ func main() {
 		mintxtgw := strconv.FormatInt(int64(testtxt["mingw"].(int)), 10)
 		counttxts := strconv.FormatInt(int64(testtxt["count"].(int)), 10)
 		// averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
+		test := testtxt["times"].(string)
+		// fmt.Println("times :", len(test))
+		strrr := strings.Split(test, ",")
+		countList := []int{}
+		for ccc := range strrr {
+			// fmt.Println("ccc :", strrr[ccc])
+			showtext, err := strconv.Atoi(strrr[ccc])
+			if err != nil {
+				// fmt.Println("Error during conversion")
+
+			}
+			countList = append(countList, showtext)
+		}
+		sort.Sort(sort.IntSlice(countList))
+
+		var cclist float64 = float64(len(strrr))
+		// fmt.Println("ccc90 :", cclist*0.9)
+		// fmt.Println("ccc95 :", cclist*0.95)
+		// fmt.Println("ccc99 :", cclist*0.99)
+		// countList = append(countList, marks)
+		var y90 int = int(cclist * 0.90)
+		var y95 int = int(cclist * 0.95)
+		var y99 int = int(cclist * 0.99)
+
+		// fmt.Println("y90 :", countList[y90])
+		// fmt.Println("y95 :", countList[y95])
+		// fmt.Println("y99 :", countList[y99])
+		ss90 := strconv.Itoa(countList[y90])
+		ss95 := strconv.Itoa(countList[y95])
+		ss99 := strconv.Itoa(countList[y99])
+
 		var xxapi float64 = float64(testtxt["all"].(int))
 		var xx float64 = float64(testtxt["allgw"].(int))
 		var yy float64 = float64(testtxt["count"].(int))
@@ -476,7 +682,7 @@ func main() {
 		averagetxt2 := fmt.Sprintf("%.2f", averagetxt)
 		averagetxtgw := xx / yy
 		averagetxt2gw := fmt.Sprintf("%.2f", averagetxtgw)
-		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, averagetxt2, maxtxtgw, mintxtgw, averagetxt2gw, counttxts}}
+		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, averagetxt2, maxtxtgw, mintxtgw, averagetxt2gw, counttxts, ss90, ss95, ss99}}
 		// fmt.Println("txt2 :", txt2)
 		writer2.WriteAll(txt2)
 	}
@@ -514,7 +720,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("版本:1.0.8\n")
+		fmt.Printf("版本:1.0.13\n")
 		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 
@@ -524,7 +730,7 @@ func checkNumber() {
 	}
 	fmt.Println("查詢的 Userid:", uuid)
 	for {
-		fmt.Printf("1.LaunchTime\n2.NetError\n3.SocketError\n4.AndroidSpeed\n5.AppStatus\n6.onClick\n7.ApiCallTime\n8.ApiResponseTime\n9.error300Report\n")
+		fmt.Printf("1.LaunchTime\n2.NetError\n3.SocketError\n4.AndroidSpeed\n5.AppStatus\n6.onClick\n7.ApiCallTime\n8.ApiResponseTime\n9.error300Report\n10.Domain Speed\n")
 		fmt.Printf("請輸入要輸出的類型號碼: ")
 		fmt.Scanln(&name)
 
@@ -563,6 +769,10 @@ func checkFileName() {
 	}
 	if name == "9" {
 		fileName = "/error300Report_" + uuid + ".csv"
+	}
+	if name == "10" {
+		fileName = "/ApiResponseTime_" + uuid + ".csv"
+		fileName2 = "/weexrawlist" + ".csv"
 	}
 
 	// ApiCallTime = "ApiCallTime"
