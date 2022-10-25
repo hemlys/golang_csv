@@ -229,7 +229,7 @@ func main() {
 				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
 				writer.WriteAll(txt)
 
-				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count", "90%", "95%", "99%"}}
+				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count", "api90%", "api95%", "api99%", "gw90%", "gw95%", "gw99%"}}
 				writer2.WriteAll(txt2)
 
 			} else if name == "9" {
@@ -243,7 +243,7 @@ func main() {
 				txt := [][]string{{Time, deviceIdentifiers, deviceModel, deviceSubModel, eventName, VersionInfo, UserID, DeviceID, URL, Name, ApiResponseTime}}
 				writer.WriteAll(txt)
 
-				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count", "90%", "95%", "99%"}}
+				txt2 := [][]string{{"apiurl", "apiMaxTime", "apiMiniTime", "apiAverageTime", "gwMaxTime", "gwMiniTime", "gwAverageTime", "count", "api90%", "api95%", "api99%", "gw90%", "gw95%", "gw99%"}}
 				writer2.WriteAll(txt2)
 
 			} else {
@@ -384,6 +384,7 @@ func main() {
 								"max":        marks,
 								"min":        marks,
 								"times":      strconv.Itoa(marks),
+								"gw":         strconv.Itoa(resgw),
 								"count":      1,
 								"maxgw":      resgw,
 								"mingw":      resgw,
@@ -404,14 +405,20 @@ func main() {
 								allcount = allcount + 1
 
 								testlist := tempObj["times"].(string)
+								gwlist := tempObj["gw"].(string)
 
 								//====================
-								urltext := strings.Split(responseDatas3.ApiCallUrl, "/")
+								// urltext := strings.Split(responseDatas3.ApiCallUrl, "/")
 								// fmt.Println("text 0 :", urltext[0])
 								// fmt.Println("text 1 :", urltext[1])
-								fmt.Println("text 2 :", urltext[2])
-								// var straaa = []string{testlist, strconv.Itoa(marks)}
-								// testlist = strings.Join(straaa, ",")
+								// fmt.Println("text 2 :", urltext[2])
+								// fmt.Println("marks:", marks)
+								// fmt.Println("resgw:", resgw)
+								var straaa = []string{testlist, strconv.Itoa(marks)}
+								testlist = strings.Join(straaa, ",")
+
+								var strbbb = []string{gwlist, strconv.Itoa(resgw)}
+								gwlist = strings.Join(strbbb, ",")
 
 								// var buffer bytes.Buffer
 								// buffer.WriteString(testlist)
@@ -419,10 +426,10 @@ func main() {
 								// buffer.WriteString(strconv.Itoa(marks))
 								// testlist = buffer.String()
 
-								testlist = testlist + "," + strconv.Itoa(marks) //超慢
+								// testlist = testlist + "," + strconv.Itoa(marks) //超慢
 
 								// fmt.Println("testlist size :", testlist)
-								fmt.Println("text size :", len(testlist))
+								fmt.Println("gwlist size :", len(gwlist))
 
 								if marks > maxcount {
 									maxcount = marks
@@ -448,6 +455,7 @@ func main() {
 									"maxgw":      maxcountgw,
 									"mingw":      mincountgw,
 									"allgw":      numcountgw,
+									"gw":         gwlist,
 								}
 
 								resultObj[responseDatas3.ApiCallUrl] = oneObj2
@@ -513,7 +521,7 @@ func main() {
 						// return
 					}
 
-					if strings.Contains(responseDatas3.ApiCallUrl, "health") || strings.Contains(responseDatas3.ApiCallUrl, "stopService") || strings.Contains(responseDatas3.ApiCallUrl, "legal/order/detail") || strings.Contains(responseDatas3.ApiCallUrl, "getChannelcodeFromVipcode") {
+					if strings.Contains(responseDatas3.ApiCallUrl, "health") || strings.Contains(responseDatas3.ApiCallUrl, "stopService") {
 
 					} else {
 						if marks == 0 {
@@ -529,6 +537,7 @@ func main() {
 								"max":        marks,
 								"min":        marks,
 								"times":      strconv.Itoa(marks),
+								"gw":         strconv.Itoa(resgw),
 								"count":      1,
 								"maxgw":      resgw,
 								"mingw":      resgw,
@@ -549,14 +558,18 @@ func main() {
 								allcount = allcount + 1
 
 								testlist := tempObj["times"].(string)
+								gwlist := tempObj["gw"].(string)
 
 								//====================
 								// urltext := strings.Split(responseDatas3.ApiCallUrl, "/")
 								// fmt.Println("text 0 :", urltext[0])
 								// fmt.Println("text 1 :", urltext[1])
 								// fmt.Println("text 2 :", urltext[2])
-								// var straaa = []string{testlist, strconv.Itoa(marks)}
-								// testlist = strings.Join(straaa, ",")
+								var straaa = []string{testlist, strconv.Itoa(marks)}
+								testlist = strings.Join(straaa, ",")
+
+								var strbbb = []string{gwlist, strconv.Itoa(resgw)}
+								gwlist = strings.Join(strbbb, ",")
 
 								// var buffer bytes.Buffer
 								// buffer.WriteString(testlist)
@@ -564,10 +577,11 @@ func main() {
 								// buffer.WriteString(strconv.Itoa(marks))
 								// testlist = buffer.String()
 
-								testlist = testlist + "," + strconv.Itoa(marks) //超慢
+								// testlist = testlist + "," + strconv.Itoa(marks) //超慢
 
 								// fmt.Println("testlist size :", testlist)
-								fmt.Println("text size :", len(testlist))
+								// fmt.Println("text size :", urltext[2])
+								fmt.Println("text size :", len(gwlist))
 
 								if marks > maxcount {
 									maxcount = marks
@@ -593,6 +607,7 @@ func main() {
 									"maxgw":      maxcountgw,
 									"mingw":      mincountgw,
 									"allgw":      numcountgw,
+									"gw":         gwlist,
 								}
 
 								resultObj[urltext[2]] = oneObj2
@@ -644,7 +659,6 @@ func main() {
 		counttxts := strconv.FormatInt(int64(testtxt["count"].(int)), 10)
 		// averagetxt := testtxt["all"].(int) / testtxt["count"].(int)
 		test := testtxt["times"].(string)
-		// fmt.Println("times :", len(test))
 		strrr := strings.Split(test, ",")
 		countList := []int{}
 		for ccc := range strrr {
@@ -652,28 +666,40 @@ func main() {
 			showtext, err := strconv.Atoi(strrr[ccc])
 			if err != nil {
 				// fmt.Println("Error during conversion")
-
 			}
 			countList = append(countList, showtext)
 		}
 		sort.Sort(sort.IntSlice(countList))
 
 		var cclist float64 = float64(len(strrr))
-		// fmt.Println("ccc90 :", cclist*0.9)
-		// fmt.Println("ccc95 :", cclist*0.95)
-		// fmt.Println("ccc99 :", cclist*0.99)
-		// countList = append(countList, marks)
 		var y90 int = int(cclist * 0.90)
 		var y95 int = int(cclist * 0.95)
 		var y99 int = int(cclist * 0.99)
-
-		// fmt.Println("y90 :", countList[y90])
-		// fmt.Println("y95 :", countList[y95])
-		// fmt.Println("y99 :", countList[y99])
 		ss90 := strconv.Itoa(countList[y90])
 		ss95 := strconv.Itoa(countList[y95])
 		ss99 := strconv.Itoa(countList[y99])
+		//===============================
+		testgw := testtxt["gw"].(string)
+		strrrgw := strings.Split(testgw, ",")
+		countListgw := []int{}
+		for kkk := range strrrgw {
+			// fmt.Println("ccc :", strrr[ccc])
+			showtextgw, errr := strconv.Atoi(strrrgw[kkk])
+			if errr != nil {
+				// fmt.Println("Error during conversion")
+			}
+			countListgw = append(countListgw, showtextgw)
+		}
+		sort.Sort(sort.IntSlice(countListgw))
 
+		var cclistgw float64 = float64(len(strrrgw))
+		var gwy90 int = int(cclistgw * 0.90)
+		var gwy95 int = int(cclistgw * 0.95)
+		var gwy99 int = int(cclistgw * 0.99)
+		gwss90 := strconv.Itoa(countListgw[gwy90])
+		gwss95 := strconv.Itoa(countListgw[gwy95])
+		gwss99 := strconv.Itoa(countListgw[gwy99])
+		//===============================
 		var xxapi float64 = float64(testtxt["all"].(int))
 		var xx float64 = float64(testtxt["allgw"].(int))
 		var yy float64 = float64(testtxt["count"].(int))
@@ -682,7 +708,7 @@ func main() {
 		averagetxt2 := fmt.Sprintf("%.2f", averagetxt)
 		averagetxtgw := xx / yy
 		averagetxt2gw := fmt.Sprintf("%.2f", averagetxtgw)
-		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, averagetxt2, maxtxtgw, mintxtgw, averagetxt2gw, counttxts, ss90, ss95, ss99}}
+		txt2 := [][]string{{testtxt["ApiCallUrl"].(string), maxtxt, mintxt, averagetxt2, maxtxtgw, mintxtgw, averagetxt2gw, counttxts, ss90, ss95, ss99, gwss90, gwss95, gwss99}}
 		// fmt.Println("txt2 :", txt2)
 		writer2.WriteAll(txt2)
 	}
@@ -720,7 +746,7 @@ func getExePath() string {
 
 func checkNumber() {
 	for {
-		fmt.Printf("版本:1.0.13\n")
+		fmt.Printf("版本:1.0.15\n")
 		fmt.Printf("請輸入要查詢的 UserId: ")
 		fmt.Scanln(&uuid)
 
